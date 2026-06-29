@@ -178,7 +178,7 @@ When you invoke `figma-deep-dive`, it runs as a subagent in its own context
 window and executes a fixed pipeline:
 
 1. **Reads the inputs** — file URL, one or more node IDs (`NNNN:NNNN`), and an optional checklist of what to resolve.
-2. **Calls the `figma-console` MCP** — strictly this one, no other Figma providers. Primary tool is `figma_get_component_for_development` with `includeImage: false` (text-only output).
+2. **Calls the `figma-console` MCP** — strictly this one, no other Figma providers. Primary tool is `figma_get_component_for_development` with `includeImage: false` (text-only output). When more detail is needed, it escalates *within figma-console* on demand — `figma_get_variables`/`figma_get_token_values` to resolve a `VariableID` to its token name/value, or `figma_get_component_for_development_deep` when the primary call comes back thin.
 3. **Handles large payloads** — if a response exceeds ~60k characters, the MCP writes it to disk and returns the path. The agent `jq`s the file in place instead of loading it into its context.
 4. **Extracts the checklist** via canned `jq` patterns — tree summary, TEXT nodes with font + colour, children of named frames, etc. Hidden layers (`visible:false`) and their entire subtrees are excluded — only rendered nodes reach the spec.
 5. **Auto-drills one level deeper** for common container names (`Card`, `Row`, `List Item`, `Content`, `input-field`, `list-item`, and generic `Frame <digits>` under those). No round-trip needed.

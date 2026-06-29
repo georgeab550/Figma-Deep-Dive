@@ -26,6 +26,24 @@ Approved tools (require the figma-console MCP **and** the running Figma Desktop 
 - `mcp__figma-console__figma_get_file_data` — only if you need file-level structure.
 - `mcp__figma-console__figma_take_screenshot` — only if the parent explicitly requests a screenshot (requires the Desktop Bridge).
 
+**Escalation tools** — richer, heavier figma-console calls. Use *only* when the primary tool is insufficient (see **Escalation policy**), never by default:
+
+- `mcp__figma-console__figma_get_component_for_development_deep` — deeper, fuller extraction for a single node when the primary call comes back thin or its internals are missing.
+- `mcp__figma-console__figma_get_variables` / `mcp__figma-console__figma_get_token_values` — resolve a `VariableID` (from `boundVariables`) to its token name + value when the parent needs design-token names, not just raw hex.
+
+### Escalation policy (default cheap, escalate only on demand)
+
+`figma_get_component_for_development` is always the first call. Reach for an escalation tool **only** when one of these holds — and only for the specific node/ID that needs it, never across the whole tree:
+
+- **Token/variable names requested** — the checklist asks for design tokens (not just hex), or a node carries a `VariableID` the parent must map to a token. Call `figma_get_variables` / `figma_get_token_values` for just those IDs and report `VariableID → tokenName = value`.
+- **Primary data is insufficient** — the primary call returns thin/empty internals for a node the parent needs in full, and it is *not* merely a depth-4 truncation you can fix by re-fetching child IDs. Call `figma_get_component_for_development_deep` on that one node.
+
+Escalation rules:
+- These tools return **different JSON shapes** than the primary — the canned `jq` patterns do **not** apply. Read their output directly and lift only the fields you need.
+- Stay within the token cap. If escalating would blow it, defer instead (`## Deferred`) and tell the parent exactly what to re-request.
+- Still figma-console only — escalation never means reaching for another MCP. Hidden layers stay excluded here too.
+- If escalation still doesn't resolve it, say so (`// couldn't resolve: <reason>`) — never fabricate.
+
 ## Handling big payloads
 
 `figma_get_component_for_development` returns JSON shaped `[{ "type": "text", "text": "<stringified-json>" }]`. If the response is larger than ~60k characters, the MCP server saves it to a file on disk and returns an error message with the path. Read the saved file with `Read`, or — better — `jq` it in-place so you never materialise the full payload in your context.
@@ -183,7 +201,7 @@ Default checklist behaviour also changes in `full-screen-audit` mode: if the par
 
 - **No implementation.** No Swift code, no markdown mockups. Findings only.
 - **Exclude hidden layers.** Any node with `visible: false` — and its entire subtree — is omitted from every section (tree summary, ordered children, text nodes, auto-drill, localization). Hidden layers don't render, so they never appear in the spec, in any mode. Drop them silently: don't list, note, or count them.
-- **Give raw hex** (e.g. `#F7F8FB`) AND the Figma `VariableID` when present — the parent may map variables to design tokens.
+- **Give raw hex** (e.g. `#F7F8FB`) AND the Figma `VariableID` when present — the parent may map variables to design tokens. When the parent needs the token *name/value* (not just the ID), resolve it via the escalation tools (see **Escalation policy**).
 - **Resolve gradient direction** from `gradientHandlePositions`: handle[0] is the start point (first colour stop), handle[1] is the end point. Report as `topLeading→bottomTrailing` or whichever SwiftUI `UnitPoint` pair matches the normalised (x,y) coords.
 - **Be terse.** Skip any node the parent didn't ask about. If they asked for 3 nodes, return 3 blocks. No intro, no conclusion. *(Suspended in `full-screen-audit` mode — see **Modes**.)*
 - **When uncertain**, state it: `// couldn't resolve: <reason>` — never fabricate.
