@@ -352,6 +352,10 @@ The agent has no memory between invocations, so a follow-up pass is just another
 
 ## ❓ FAQ
 
+### How is this different from the figma-console MCP?
+
+It's a consumer of the MCP, not an alternative: the MCP exposes raw Figma data as tools, and the agent calls those tools but runs in its own separate context — returning only a distilled ~3000-token spec instead of dumping the full payload into your main session.
+
 ### How is this different from the Figma Desktop Bridge?
 
 It doesn't replace the bridge — it sits on top of it: the bridge is the pipe that pulls raw data out of Figma, and the agent digests that firehose in its own context and hands you back just a compact spec, so your main session's context stays clean.
