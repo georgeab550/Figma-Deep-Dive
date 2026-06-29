@@ -30,6 +30,7 @@ while still getting accurate design data.
 - [🎚 Modes](#-modes)
 - [💬 Usage patterns](#-usage-patterns)
 - [🛠 Troubleshooting](#-troubleshooting)
+- [❓ FAQ](#-faq)
 - [👥 Maintainers](#-maintainers)
 
 ---
@@ -346,6 +347,14 @@ The agent has no memory between invocations, so a follow-up pass is just another
 | MCP calls return `401` | Token missing a required scope | Regenerate token with File content (Read), Variables (Read), Comments (R/W) |
 | Variables or component descriptions return empty | Bridge plugin not running in the target Figma file | Open the target file in Figma Desktop and run the Bridge plugin there |
 | `command not found: npx` | Node.js not installed | Install Node 18+ (`brew install node` on macOS) |
+
+---
+
+## ❓ FAQ
+
+### How is this different from the Figma Desktop Bridge?
+
+It doesn't replace the bridge — it sits on top of it: the bridge is the pipe that pulls raw data out of Figma, and the agent digests that firehose in its own context and hands you back just a compact spec, so your main session's context stays clean.
 
 ---
 
