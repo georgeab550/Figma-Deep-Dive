@@ -180,7 +180,7 @@ window and executes a fixed pipeline:
 1. **Reads the inputs** — file URL, one or more node IDs (`NNNN:NNNN`), and an optional checklist of what to resolve.
 2. **Calls the `figma-console` MCP** — strictly this one, no other Figma providers. Primary tool is `figma_get_component_for_development` with `includeImage: false` (text-only output).
 3. **Handles large payloads** — if a response exceeds ~60k characters, the MCP writes it to disk and returns the path. The agent `jq`s the file in place instead of loading it into its context.
-4. **Extracts the checklist** via canned `jq` patterns — tree summary, TEXT nodes with font + colour, children of named frames, etc.
+4. **Extracts the checklist** via canned `jq` patterns — tree summary, TEXT nodes with font + colour, children of named frames, etc. Hidden layers (`visible:false`) and their entire subtrees are excluded — only rendered nodes reach the spec.
 5. **Auto-drills one level deeper** for common container names (`Card`, `Row`, `List Item`, `Content`, `input-field`, `list-item`, and generic `Frame <digits>` under those). No round-trip needed.
 6. **Recurses through the REST depth-4 limit** — when a frame shows `children: []` at depth 4, grabs child IDs from the parent and re-queries each.
 7. **Resolves gradients** — reads `gradientHandlePositions` and reports direction as SwiftUI `UnitPoint` pairs (e.g. `topLeading→bottomTrailing`).

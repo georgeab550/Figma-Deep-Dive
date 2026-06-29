@@ -30,25 +30,35 @@ Approved tools (require the figma-console MCP **and** the running Figma Desktop 
 
 `figma_get_component_for_development` returns JSON shaped `[{ "type": "text", "text": "<stringified-json>" }]`. If the response is larger than ~60k characters, the MCP server saves it to a file on disk and returns an error message with the path. Read the saved file with `Read`, or — better — `jq` it in-place so you never materialise the full payload in your context.
 
-Extraction patterns (adapt paths as needed):
+Extraction patterns (adapt paths as needed). **Every pattern routes through a `vis` walker that excludes hidden layers**: a node with `visible == false`, *and its entire subtree*, is dropped — a hidden parent hides all its descendants, even ones whose own `visible` is `true`. Hidden layers don't render, so they must never reach the spec. The walker descends only through `.children` and stops at any hidden node:
 
-```bash
-# Tree summary (name/type/dims) for the node
-jq -r '.[0].text' "<saved_file>" | jq -r \
-  '[.component] | .. | select(type=="object" and has("name") and has("absoluteBoundingBox")) | \
-   "\(.name) | \(.type) | \(.absoluteBoundingBox.width)x\(.absoluteBoundingBox.height) | id=\(.id // "")"'
-
-# All TEXT nodes with content + font
-jq -r '.[0].text' "<saved_file>" | jq -r \
-  '[.component] | .. | select(type=="object" and .type=="TEXT") | \
-   "TEXT id=\(.id) \"\(.characters // "")\" | font=\(.style.fontFamily // "?") \(.style.fontSize // "?")px w=\(.style.fontWeight // "?") | color=\(if .fills then (.fills[0].color // "?") else "?" end) | case=\(.style.textCase // "none")"'
-
-# Direct children of a specific named frame
-jq -r '.[0].text' "<saved_file>" | jq -r \
-  '[.component] | .. | select(type=="object" and .name=="<frame-name>") | .id'
+```jq
+def vis: if .visible == false then empty else ., (.children[]? | vis) end;
 ```
 
-When a frame contains empty `children: []` at depth 4 (REST limit), grab its child IDs from the parent's `children` array and recurse with a fresh `figma_get_component_for_development` call per child ID.
+```bash
+# Tree summary (name/type/dims) — visible nodes only
+jq -r '.[0].text' "<saved_file>" | jq -r '
+  def vis: if .visible == false then empty else ., (.children[]? | vis) end;
+  .component | vis
+  | select(type=="object" and has("name") and has("absoluteBoundingBox"))
+  | "\(.name) | \(.type) | \(.absoluteBoundingBox.width)x\(.absoluteBoundingBox.height) | id=\(.id // "")"'
+
+# All TEXT nodes with content + font — visible nodes only
+jq -r '.[0].text' "<saved_file>" | jq -r '
+  def vis: if .visible == false then empty else ., (.children[]? | vis) end;
+  .component | vis
+  | select(type=="object" and .type=="TEXT")
+  | "TEXT id=\(.id) \"\(.characters // "")\" | font=\(.style.fontFamily // "?") \(.style.fontSize // "?")px w=\(.style.fontWeight // "?") | color=\(if .fills then (.fills[0].color // "?") else "?" end) | case=\(.style.textCase // "none")"'
+
+# Direct children of a specific named frame — visible nodes only
+jq -r '.[0].text' "<saved_file>" | jq -r '
+  def vis: if .visible == false then empty else ., (.children[]? | vis) end;
+  .component | vis
+  | select(type=="object" and .name=="<frame-name>") | .id'
+```
+
+When a frame contains empty `children: []` at depth 4 (REST limit), grab its child IDs from the parent's `children` array and recurse with a fresh `figma_get_component_for_development` call per child ID. **Skip any child with `visible: false`** — never fetch or recurse into a hidden subtree.
 
 ## Output format (strict)
 
@@ -167,11 +177,12 @@ When this mode is active, override defaults as follows:
 
 Default checklist behaviour also changes in `full-screen-audit` mode: if the parent does not supply a `checklist`, treat the implicit checklist as "everything the strict output schema requires for every reachable node" rather than "best-effort summary." Don't skip fields because they're cosmetic.
 
-`full-screen-audit` does **not** alter input parsing, primary fetch, big-payload `jq` handling, the localization step, or any cross-cutting safety rules (no implementation, no fabrication, hex + VariableID, gradient normalisation).
+`full-screen-audit` does **not** alter input parsing, primary fetch, big-payload `jq` handling, the localization step, hidden-layer exclusion, or any cross-cutting safety rules (no implementation, no fabrication, hex + VariableID, gradient normalisation). Hidden layers stay excluded even here — an exhaustive drill still skips `visible:false` subtrees.
 
 ## Rules
 
 - **No implementation.** No Swift code, no markdown mockups. Findings only.
+- **Exclude hidden layers.** Any node with `visible: false` — and its entire subtree — is omitted from every section (tree summary, ordered children, text nodes, auto-drill, localization). Hidden layers don't render, so they never appear in the spec, in any mode. Drop them silently: don't list, note, or count them.
 - **Give raw hex** (e.g. `#F7F8FB`) AND the Figma `VariableID` when present — the parent may map variables to design tokens.
 - **Resolve gradient direction** from `gradientHandlePositions`: handle[0] is the start point (first colour stop), handle[1] is the end point. Report as `topLeading→bottomTrailing` or whichever SwiftUI `UnitPoint` pair matches the normalised (x,y) coords.
 - **Be terse.** Skip any node the parent didn't ask about. If they asked for 3 nodes, return 3 blocks. No intro, no conclusion. *(Suspended in `full-screen-audit` mode — see **Modes**.)*
