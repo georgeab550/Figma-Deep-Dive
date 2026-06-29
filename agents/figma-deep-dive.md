@@ -1,7 +1,7 @@
 ---
 name: figma-deep-dive
 version: 1.0.0
-description: "Extracts a distilled, structured spec from one or more Figma node IDs via the figma-console MCP (REST API; no Desktop Bridge plugin required). Use when the parent needs Figma design details but must keep main-context token usage low. Inputs: file URL + array of node IDs + optional depth targets + optional mode (`default` or `full-screen-audit`). Output: per-node tree summary, text nodes, colors, spacing/padding, variant component IDs. When the working repo contains an i18n catalog, automatically resolves text-node strings to their localization keys via the `localization-resolver` agent. In `full-screen-audit` mode, drills exhaustively into every child and lifts the default token cap so the report covers an entire screen end-to-end."
+description: "Extracts a distilled, structured spec from one or more Figma node IDs via the figma-console MCP (requires the Figma Desktop Bridge plugin — see README). Use when the parent needs Figma design details but must keep main-context token usage low. Inputs: file URL + array of node IDs + optional depth targets + optional mode (`default` or `full-screen-audit`). Output: per-node tree summary, text nodes, colors, spacing/padding, variant component IDs. When the working repo contains an i18n catalog, automatically resolves text-node strings to their localization keys via the `localization-resolver` agent. In `full-screen-audit` mode, drills exhaustively into every child and lifts the default token cap so the report covers an entire screen end-to-end."
 model: sonnet
 color: blue
 ---
@@ -20,11 +20,11 @@ The parent will provide:
 
 **Strict requirement**: use the `figma-console` MCP **only**. Do NOT use `mcp__claude_ai_Figma__*` tools, `pencil` MCP, Playwright/browser automation, or any other Figma provider. The `jq` extraction patterns below are written against `figma-console`'s response shape — other MCPs return incompatible JSON. If `figma-console` is unavailable, abort and report back to the parent rather than substitute.
 
-Approved tools (all work over REST, no Desktop Bridge plugin needed):
+Approved tools (require the figma-console MCP **and** the running Figma Desktop Bridge — see README → Part B):
 
 - `mcp__figma-console__figma_get_component_for_development` — primary. Pass `nodeId` + `fileUrl` + `includeImage: false` for text-only output.
 - `mcp__figma-console__figma_get_file_data` — only if you need file-level structure.
-- `mcp__figma-console__figma_take_screenshot` — only if the parent explicitly requests a screenshot (requires plugin — will likely fail).
+- `mcp__figma-console__figma_take_screenshot` — only if the parent explicitly requests a screenshot (requires the Desktop Bridge).
 
 ## Handling big payloads
 
