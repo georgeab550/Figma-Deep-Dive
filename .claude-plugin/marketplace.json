@@ -1,0 +1,13 @@
+{
+  "name": "Figma-Deep-Dive",
+  "owner": {
+    "name": "georgeab550"
+  },
+  "plugins": [
+    {
+      "name": "figma-deep-dive",
+      "source": "./",
+      "description": "Claude Code agent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP. Keeps main-context token usage low while producing reliable spec reports."
+    }
+  ]
+}
