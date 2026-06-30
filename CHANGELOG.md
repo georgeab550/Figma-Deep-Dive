@@ -19,3 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial public release. A Claude Code subagent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP, keeping main-context token usage low. Ships the `figma-deep-dive` agent, the `localization-resolver` agent, and a marketplace manifest for one-line install. Includes `default` and `full-screen-audit` modes and automatic localization-key resolution against the working repo's i18n catalogs.
+
+[0.3.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/georgeab550/Figma-Deep-Dive/releases/tag/v0.2.0
