@@ -1,6 +1,6 @@
 ---
 name: figma-deep-dive
-version: 1.0.0
+version: 0.3.0
 description: "Extracts a distilled, structured spec from one or more Figma node IDs via the figma-console MCP (requires the Figma Desktop Bridge plugin — see README). Use when the parent needs Figma design details but must keep main-context token usage low. Inputs: file URL + array of node IDs + optional depth targets + optional mode (`default` or `full-screen-audit`). Output: per-node tree summary, text nodes, colors, spacing/padding, variant component IDs. When the working repo contains an i18n catalog, automatically resolves text-node strings to their localization keys via the `localization-resolver` agent. In `full-screen-audit` mode, drills exhaustively into every child and lifts the default token cap so the report covers an entire screen end-to-end."
 model: sonnet
 color: blue
