@@ -5,6 +5,15 @@ All notable changes to this plugin are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-07-18
+
+### Added
+- **`figma-setup` doctor skill** (`/figma-setup`) — self-installing setup for the whole toolchain. Resolves and validates your personal Figma token (walking you through creating one if needed), registers the `figma-console` MCP at user scope, migrates old manual installs automatically, checks MCP health and Desktop Bridge connectivity (with the one-time manifest-import walkthrough), and ends every run in a green/red status table. Idempotent — safe to re-run any time.
+- **One-command install README** — three paste-commands (`marketplace add` / `install` / `enable`) plus `/figma-setup` replace the setup walkthrough.
+
+### Changed
+- **README install section rewritten.** The manual three-part install (Parts A/B/C: `claude mcp add` by hand, bridge import, plugin install) is replaced by the `/figma-setup` flow; troubleshooting now routes through the doctor.
+
 ## [0.3.0] - 2026-06-30
 
 ### Added
@@ -20,5 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial public release. A Claude Code subagent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP, keeping main-context token usage low. Ships the `figma-deep-dive` agent, the `localization-resolver` agent, and a marketplace manifest for one-line install. Includes `default` and `full-screen-audit` modes and automatic localization-key resolution against the working repo's i18n catalogs.
 
+[0.4.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/georgeab550/Figma-Deep-Dive/releases/tag/v0.2.0
