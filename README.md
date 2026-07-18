@@ -19,12 +19,7 @@ while still getting accurate design data.
 
 ## Table of contents
 
-- [🧩 What you're installing](#-what-youre-installing)
-- [✅ Prerequisites](#-prerequisites)
-- [📦 Part A — Install `figma-console-mcp`](#-part-a--install-figma-console-mcp)
-- [🔌 Part B — Install the Figma Desktop Bridge plugin](#-part-b--install-the-figma-desktop-bridge-plugin)
-- [🎨 Part C — Install this plugin](#-part-c--install-this-plugin)
-- [🚦 Verify end-to-end](#-verify-end-to-end)
+- [🚀 Install](#-install)
 - [⚙️ How it works](#️-how-it-works)
 - [🌍 Localization auto-resolution](#-localization-auto-resolution)
 - [🎚 Modes](#-modes)
@@ -35,112 +30,55 @@ while still getting accurate design data.
 
 ---
 
-## 🧩 What you're installing
+## 🚀 Install
 
-Three independent pieces. You install all three once per machine; the plugin
-itself only ships the agent.
+Prerequisites: **Claude Code** (installed + signed in), the **Figma Desktop** app
+(not the web app), and a **Figma personal access token** — create one at
+[figma.com → Settings → Security → Personal access tokens](https://www.figma.com/settings)
+with scopes **File content: Read**, **Variables: Read**, **Comments: Read and write**.
+Everything else is checked and fixed by the setup doctor.
+
+You're installing three pieces; the doctor wires up the first two for you:
 
 | Piece | What | Owner |
 |---|---|---|
-| **1. `figma-console-mcp`** | Node process that talks to Figma over WebSocket and exposes MCP tools (`figma_get_component_for_development`, etc.) | [southleft/figma-console-mcp](https://github.com/southleft/figma-console-mcp) |
-| **2. Figma Desktop Bridge** | Figma-desktop plugin imported via *Plugins → Development → Import plugin from manifest*. Bridges Variables/Component APIs to the MCP server. | Shipped in the same repo, under [`figma-desktop-bridge/`](https://github.com/southleft/figma-console-mcp/tree/main/figma-desktop-bridge) |
-| **3. This plugin (`figma-deep-dive`)** | The agent file + docs | This repo |
+| **`figma-console-mcp`** | Node process that talks to Figma and exposes MCP tools | [southleft/figma-console-mcp](https://github.com/southleft/figma-console-mcp) |
+| **Figma Desktop Bridge** | Figma-desktop plugin that bridges Variables/Component APIs to the MCP server | Same repo, under [`figma-desktop-bridge/`](https://github.com/southleft/figma-console-mcp/tree/main/figma-desktop-bridge) |
+| **This plugin (`figma-deep-dive`)** | The agent + the `/figma-setup` doctor | This repo |
+
+1. Open a terminal (or the Claude Code prompt with `!`) and paste:
+
+   ```bash
+   claude plugin marketplace add georgeab550/Figma-Deep-Dive
+   claude plugin install figma-deep-dive@Figma-Deep-Dive
+   claude plugin enable figma-deep-dive
+   ```
+
+2. Start Claude Code and run `/figma-setup`. (Start typing `/figma-set…` and pick
+   **`figma-deep-dive:figma-setup`** from the menu — plugin commands are namespaced
+   under the plugin name.)
+
+   It checks Node, your Figma token, the MCP server, and the Desktop Bridge —
+   fixes what it can, and gives you one plain instruction for anything it can't.
+   If you don't have a token yet, it walks you through creating one. If it ends
+   with "restart Claude Code", do that once and run it again — it should
+   come back all green.
+
+3. Import the Desktop Bridge into Figma (one-time):
+   download or clone [southleft/figma-console-mcp](https://github.com/southleft/figma-console-mcp)
+   (you only need the `figma-desktop-bridge/` folder), then in Figma **Desktop**
+   open your file → **Plugins → Development → Import plugin from manifest…** →
+   pick `figma-desktop-bridge/manifest.json` → Run. The tile turns **green** when
+   it connects (it auto-scans ports 9223–9232). You import once — the bootloader
+   pulls fresh code from the MCP server each run, so updates need no re-import.
+
+Already had the old manual install? Same three commands — `/figma-setup` migrates
+you automatically (your token is rescued from the old entry; no re-paste). Re-run
+`/figma-setup` any time something Figma-related misbehaves.
 
 > [!IMPORTANT]
 > The Desktop Bridge is **required**, not optional — the MCP server cannot
 > reach Figma's Variables API or component descriptions without it.
-
----
-
-## ✅ Prerequisites
-
-- **Claude Code** installed and running
-- **Node.js 18+** — check with `node --version`
-- **Figma Desktop app** (not the web app)
-- **A Figma Personal Access Token**
-  - Create one at [figma.com → Settings → Security → Personal access tokens](https://www.figma.com/settings)
-  - Required scopes:
-    - **File content**: Read
-    - **Variables**: Read
-    - **Comments**: Read and write
-
-> [!TIP]
-> The token starts with `figd_` and Figma only shows it once — copy it
-> into a secure note immediately, you won't see it again.
-
----
-
-## 📦 Part A — Install `figma-console-mcp`
-
-```bash
-claude mcp add figma-console -s user \
-  -e FIGMA_ACCESS_TOKEN=figd_YOUR_TOKEN_HERE \
-  -e ENABLE_MCP_APPS=true \
-  -- npx -y figma-console-mcp@latest
-```
-
-Replace `figd_YOUR_TOKEN_HERE` with the token from the Prerequisites step.
-The first call downloads the package via `npx`; later calls use the cache.
-
-Restart Claude Code, then confirm with:
-
-```bash
-claude mcp list
-```
-
-`figma-console` should appear in the output.
-
----
-
-## 🔌 Part B — Install the Figma Desktop Bridge plugin
-
-The MCP server by itself cannot reach Figma's Variables API or reliably read
-component descriptions. The Desktop Bridge plugin solves that by running
-inside Figma Desktop and exposing those surfaces over a local WebSocket
-(ports 9223–9232, auto-probed).
-
-### Steps
-
-1. **Download or clone** [`southleft/figma-console-mcp`](https://github.com/southleft/figma-console-mcp/tree/main/figma-desktop-bridge) — you only need the `figma-desktop-bridge/` folder.
-2. **Launch Figma Desktop** (plugin development only works in the desktop client, not the web app).
-3. Open any Figma file (an empty scratch file is fine).
-4. Menu bar: **Plugins → Development → Import plugin from manifest…**
-5. Navigate to `figma-desktop-bridge/manifest.json` inside the downloaded repo and click **Open**.
-6. The plugin now appears under **Plugins → Development → Figma Desktop Bridge**. Run it in any file; its UI panel opens on the right.
-7. The bridge auto-scans ports 9223–9232 and connects to whichever port the MCP server is running on. When connected, **the plugin tile turns green** — that's your signal that Part A + Part B are talking.
-
-### Updating the bridge
-
-> [!NOTE]
-> You only import the manifest once. The bootloader pulls fresh code from
-> the MCP server on each run, so you don't re-import when the server updates —
-> just re-run the bridge plugin in whichever Figma file you're working on.
-
----
-
-## 🎨 Part C — Install this plugin
-
-This repo is a Claude Code marketplace. Three commands:
-
-```bash
-# 1. Register this repo as a marketplace (one-time, per user)
-claude plugin marketplace add georgeab550/Figma-Deep-Dive
-
-# 2. Install the plugin from that marketplace
-claude plugin install figma-deep-dive@Figma-Deep-Dive
-
-# 3. Enable the plugin in the current project
-claude plugin enable figma-deep-dive
-```
-
-> [!NOTE]
-> **Why three steps?** Claude Code separates *install* (download + register)
-> from *enable* (activate). `install` never auto-enables — this is intentional
-> so plugins don't run silently on your machine. The `enable` step is also
-> available interactively via `/plugins` → *Installed* → toggle on.
-
-After `enable`, the `figma-deep-dive` agent is available to Claude Code in
-this project.
 
 ### Updating later
 
@@ -149,26 +87,17 @@ claude plugin marketplace update Figma-Deep-Dive
 claude plugin install figma-deep-dive@Figma-Deep-Dive
 ```
 
----
+### Under the hood
 
-## 🚦 Verify end-to-end
-
-Once all three parts are installed:
-
-1. The Desktop Bridge plugin in Figma shows **green** (Part B is connected to Part A).
-2. `claude mcp list` shows `figma-console`.
-3. `/plugins` in Claude Code shows `figma-deep-dive` enabled.
-4. In a Claude Code session, invoke the agent on a real Figma URL:
-
-   ```
-   Agent(subagent_type: "figma-deep-dive", prompt: "Figma URL: https://www.figma.com/design/<key>/
-   Checklist:
-   - All TEXT nodes with font + colour
-   - Padding of the main container
-   - Gradient direction on the header")
-   ```
-
-   You should get back a structured spec block per requested nodeId.
+- `/figma-setup` registers `figma-console` as a **user-scope** MCP entry running
+  `npx -y figma-console-mcp@latest` — deliberately not a plugin-bundled `.mcp.json`,
+  which would namespace the tools (`mcp__plugin_…`) and break the
+  `mcp__figma-console__*` references in the agent. Because it's `@latest`, `npx`
+  picks up new MCP releases on its own.
+- Your Figma token lives inline in that user-scope entry — on your machine only,
+  never committed anywhere. Token changed or revoked? Re-run `/figma-setup`.
+- The Desktop Bridge is the upstream bootloader, imported once via manifest; it
+  loads its logic from the local MCP server at runtime, so it self-updates.
 
 ---
 
@@ -339,14 +268,14 @@ The agent has no memory between invocations, so a follow-up pass is just another
 
 ## 🛠 Troubleshooting
 
-| Symptom | Cause | Fix |
-|---|---|---|
-| `claude mcp list` doesn't show `figma-console` | Part A skipped or failed | Re-run the `claude mcp add` command in Part A |
-| Desktop Bridge tile stays grey / never turns green | Part B not connected to Part A | 1) Restart the MCP server (close/reopen Claude Code). 2) Re-run the Bridge plugin in Figma. 3) Check no other app is holding ports 9223–9232. |
-| Agent reports "figma-console unavailable" | MCP server down or not registered | `claude mcp list`; if missing, redo Part A; if present, restart Claude Code |
-| MCP calls return `401` | Token missing a required scope | Regenerate token with File content (Read), Variables (Read), Comments (R/W) |
-| Variables or component descriptions return empty | Bridge plugin not running in the target Figma file | Open the target file in Figma Desktop and run the Bridge plugin there |
-| `command not found: npx` | Node.js not installed | Install Node 18+ (`brew install node` on macOS) |
+| Symptom | Fix |
+|---|---|
+| **Anything Figma-related fails** — start here | Run `/figma-setup`; follow its one instruction; restart Claude Code if it says so |
+| `claude mcp list` doesn't show `figma-console` | Run `/figma-setup` — it registers the MCP entry for you |
+| Desktop Bridge tile stays grey / never turns green | Make sure Claude Code is open (the MCP server runs inside it), re-run the Bridge plugin in Figma Desktop, check no other app is holding ports 9223–9232; then `/figma-setup` |
+| MCP calls return `401`/`403` | Run `/figma-setup` — if the stored token is bad it walks you through creating a fresh one with the three scopes (File content: Read, Variables: Read, Comments: Read and write) |
+| Variables or component descriptions return empty | Open the target file in Figma Desktop and run the Bridge plugin there; then `/figma-setup` to confirm it's connected |
+| `command not found: npx` | Run `/figma-setup` — its preflight installs Node 18+ (or points you to https://nodejs.org) |
 
 ---
 

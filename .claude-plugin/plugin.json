@@ -1,6 +1,6 @@
 {
   "name": "figma-deep-dive",
-  "version": "0.3.0",
-  "description": "Claude Code agent that extracts distilled, structured specs from Figma node IDs. Keeps main-context token usage low while producing reliable spec reports. Requires the figma-console MCP server + Figma Desktop Bridge plugin — install both separately per README.",
+  "version": "0.4.0",
+  "description": "Claude Code agent that extracts distilled, structured specs from Figma node IDs. Keeps main-context token usage low while producing reliable spec reports. Self-installing: run the bundled /figma-setup doctor to register the figma-console MCP, validate your Figma token, and connect the Desktop Bridge.",
   "homepage": "https://github.com/georgeab550/Figma-Deep-Dive"
 }

@@ -7,7 +7,7 @@
     {
       "name": "figma-deep-dive",
       "source": "./",
-      "description": "Claude Code agent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP. Keeps main-context token usage low while producing reliable spec reports."
+      "description": "Claude Code agent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP. Keeps main-context token usage low while producing reliable spec reports. Ships the /figma-setup doctor that installs and repairs the whole toolchain."
     }
   ]
 }
