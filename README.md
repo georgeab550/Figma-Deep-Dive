@@ -6,15 +6,20 @@
 
 ## **Figma-Deep-Dive**
 
-Claude Code plugin built around the **`figma-deep-dive`** agent — a token-efficient
-spec extractor for Figma designs — plus a small toolkit that keeps screen names
-consistent and hands finished screens off to a PRD.
+Claude Code plugin for working with Figma screens. It does three things:
 
-Given a Figma file URL + one or more node IDs, the agent returns a distilled
-report per node: layout, colours, text nodes, spacing, ordered children,
-component instances with their master's name and identity. It explicitly refuses to produce code — findings only.
-That's the whole value prop: keep the parent conversation's context small
-while still getting accurate design data.
+| | What | How you use it |
+|---|---|---|
+| **Read** | Extracts a distilled, token-efficient spec from any Figma node — layout, colours, text, spacing, component identity | the `figma-deep-dive` agent |
+| **Tidy** | Audits and applies a screen naming convention, and writes a "Screens to build" section into a PRD | `/figma-screens` |
+| **Build** | Rebuilds a recording, code, screenshots, a written spec or an old Figma page as design-system-native screens | `/figma-screens build` |
+
+It works with **your own design-system library, or with none**: nothing in the
+plugin is tied to a particular design system or platform.
+
+The reader never writes code — findings only. That keeps the parent
+conversation's context small while still getting accurate design data. Every
+change to Figma is shown to you first and waits for a yes.
 
 ---
 
@@ -48,7 +53,7 @@ You're installing three pieces; the doctor wires up the first two for you:
 |---|---|---|
 | **`figma-console-mcp`** | Node process that talks to Figma and exposes MCP tools | [southleft/figma-console-mcp](https://github.com/southleft/figma-console-mcp) |
 | **Figma Desktop Bridge** | Figma-desktop plugin that bridges Variables/Component APIs to the MCP server | Same repo, under [`figma-desktop-bridge/`](https://github.com/southleft/figma-console-mcp/tree/main/figma-desktop-bridge) |
-| **This plugin (`figma-deep-dive`)** | The agent + the `/figma-setup` doctor | This repo |
+| **This plugin (`figma-deep-dive`)** | The reader agent, the `/figma-screens` toolkit and the `/figma-setup` doctor | This repo |
 
 1. Open a terminal (or the Claude Code prompt with `!`) and paste:
 
@@ -113,6 +118,17 @@ you automatically (your token is rescued from the old entry; no re-paste). Re-ru
 > to the Figma REST API and **opens its report with a warning** that the result
 > is degraded (no library keys, no token names, no screenshots). Treat that
 > warning as "connect the Bridge and re-run", not as a finished spec.
+
+### Optional extras
+
+Only needed for [building screens](#-building-screens), and only for the source you use:
+
+| You want to build from | Install |
+|---|---|
+| A screen recording | [`ffmpeg`](https://ffmpeg.org) |
+| A code project or HTML | Playwright, to render it headless (the Playwright MCP or a local Playwright install) |
+| A pencil `.pen` file | the pencil MCP |
+| A separate reference file to copy the look from | the official Figma MCP |
 
 ### Updating later
 
@@ -235,8 +251,8 @@ fill: gradient linear (0,0)→(1,1) top-left→bottom-right #FF5A5F→#C13584 ·
 
 ## 🎚 Modes
 
-The agent has two modes governing how aggressive it is about drilling and
-how much output it allows itself.
+The agent has two extraction modes governing how aggressive it is about drilling
+and how much output it allows itself, plus two read-only audit modes.
 
 ### `default` (no flag needed)
 
@@ -315,6 +331,10 @@ The pieces behind it:
 - **`screens-to-prd`** (skill) — renders that registry into a fenced,
   regenerable block in a PRD. Re-running refreshes the block and leaves your
   prose alone.
+- **`design-system-profile`** (skill) — detects the design system a file uses
+  and saves the project profile. See [Your design system](#your-design-system).
+- **`figma-screens-from-source`** (skill) — the builder. See
+  [Building screens](#-building-screens).
 
 ### The convention in two lines
 
@@ -373,6 +393,9 @@ scales out, audits the result and fixes what the audit finds. It needs the
 Desktop Bridge — there is no REST fallback for building — and a
 [design-system profile](#your-design-system). Reading a separate *reference*
 file (to copy an existing look) goes through the official Figma MCP.
+
+Every page it builds is named with the suffix **"— Auto-built, pending design
+review"**; a designer removes it after reviewing the page.
 
 Run it with `/figma-screens build <source>`, or ask in plain words:
 
@@ -457,6 +480,11 @@ The agent has no memory between invocations, so a follow-up pass is just another
 | Desktop Bridge tile stays grey / never turns green | Make sure Claude Code is open (the MCP server runs inside it), re-run the Bridge plugin in Figma Desktop, check no other app is holding ports 9223–9232; then `/figma-setup` |
 | MCP calls return `401`/`403` | Run `/figma-setup` — if the stored token is bad it walks you through creating a fresh one with the three scopes (File content: Read, Variables: Read, Comments: Read and write) |
 | Variables or component descriptions return empty | Open the target file in Figma Desktop and run the Bridge plugin there; then `/figma-setup` to confirm it's connected |
+| A build stops with "library not enabled" | In Figma, open the working file → **Assets → Libraries** → enable your library, then run the build again. It never switches to `local` mode on its own |
+| A build or audit asks for a profile, or uses the wrong library | Run `/figma-screens profile <url>` with the working file open; or edit `.figma-deep-dive/design-system.json` |
+| A report starts with "Desktop Bridge not connected — REST fallback" | The read is degraded. Open the file in Figma Desktop, run the Bridge plugin, and re-run |
+| The Bridge is green but the tool reads the wrong file | The Bridge follows the file that is focused in Figma Desktop. Bring the right file to the front and re-run the Bridge plugin there |
+| `ffmpeg: command not found` when building from a recording | Install `ffmpeg` (see [Optional extras](#optional-extras)) |
 | `command not found: npx` | Run `/figma-setup` — its preflight installs Node 18+ (or points you to https://nodejs.org) |
 
 ---
@@ -466,6 +494,18 @@ The agent has no memory between invocations, so a follow-up pass is just another
 ### How is this different from the figma-console MCP?
 
 It's a consumer of the MCP, not an alternative: the MCP exposes raw Figma data as tools, and the agent calls those tools but runs in its own separate context — returning only a distilled ~3000-token spec instead of dumping the full payload into your main session.
+
+### Do I need a design system?
+
+No. With a published library, enable it in the working file and the tooling builds from it. Without one, `local` mode authors the components, variables and text styles in the file as it builds, and that becomes your starting system. Either way it is recorded once in the project profile — see [Your design system](#your-design-system).
+
+### Does it work for Android and web, or only iOS?
+
+All of them. Reports are platform-neutral (Figma px, hex, the font the file uses); name your platform and the agent adds that platform's terms alongside — see [Platform hints](#-platform-hints).
+
+### Will it change my Figma file without asking?
+
+No. Reading never writes. Every write — renames, edits, a build — shows you a plan or a pilot first and waits for a yes, and a build always goes onto a new page, never over your source.
 
 ### How is this different from the Figma Desktop Bridge?
 
