@@ -1,0 +1,16 @@
+{
+  "file": "EXAMPLEfileKey0000000000",
+  "screens": [
+    {
+      "screen": "checkout/address",
+      "buildOnce": true,
+      "differsBy": ["ctaLabel", "stepLabel", "showHelperText", "showSecondaryAction"],
+      "variants": [
+        { "entry": "create", "frame": "101-1", "ctaLabel": "Continue", "stepLabel": "1 of 3", "showHelperText": true },
+        { "entry": "edit",   "frame": "101-2", "ctaLabel": "Save", "stepLabel": "2 of 3", "showSecondaryAction": true },
+        { "entry": "review", "frame": "101-3", "ctaLabel": "Submit",  "stepLabel": "3 of 3" }
+      ],
+      "sharedSubComponents": ["field/address", "row/summary", "section/payment-method"]
+    }
+  ]
+}

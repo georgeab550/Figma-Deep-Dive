@@ -1,2 +1,11 @@
 # JetBrains IDEs
 .idea/
+
+# macOS
+.DS_Store
+
+# Local tooling
+.serena/
+
+# Private pattern list for scripts/check-neutral.sh (never commit)
+scripts/neutral-denylist.local.txt

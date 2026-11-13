@@ -1,0 +1,20 @@
+name: check
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  neutral:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No company-specific strings
+        env:
+          NEUTRAL_DENYLIST: ${{ secrets.NEUTRAL_DENYLIST }}
+        run: scripts/check-neutral.sh
+      - name: Rendered designer card is up to date
+        run: |
+          node render/render-designer-surfaces.mjs
+          git diff --exit-code -- render/out
+      - name: Example registry renders
+        run: node render/render-screens-section.mjs --registry schemas/example.registry.json --dry-run > /dev/null

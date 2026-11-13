@@ -5,6 +5,27 @@ All notable changes to this plugin are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-11-13
+
+### Added
+- **`/figma-screens` command** — one entry point for the screen toolkit: `init` seeds a conventions page, a bare URL audits and normalises screen names, `layers` applies the inner-layer taxonomy, `prd` writes a "Screens to build" block into a PRD.
+- **`figma-write` skill** — confirm-gated writer. Renames screens and layers to the convention and makes surgical edits (text, raw hex → variable binding, spacing). Never writes before an explicit yes.
+- **`screen-canonicalizer` skill** — groups frames that share a master component into build-once screens with a variant matrix and emits a schema-valid `canonical-screen-registry.json`.
+- **`screens-to-prd` skill** — renders that registry into a fenced, regenerable PRD block.
+- **Conventions** (`conventions/naming.md`, `layers.md`, `designer-card.md`) — master `[Platform][Feature][Screen]`, variants store only the delta `[State] - description`; layer taxonomy `type/role[/qualifier]`. Plus `TEMPLATE.md`, the render scripts and the registry schema.
+- **`naming-audit` and `layer-audit` modes** on the `figma-deep-dive` agent — read-only checks against the conventions.
+- **Component identity in the report.** Every instance now lists its master's real name, its component id and (over the Bridge) its library key and properties.
+- **CI checks** — the rendered designer card must match its source and the example registry must render.
+
+### Changed
+- **`/figma-setup` no longer needs the token pasted into the chat.** When no stored token is found it now offers the `FIGMA_ACCESS_TOKEN` environment variable first (set it, start Claude Code, re-run), with pasting as the quick alternative. The README documents both. Node install is now offered per OS (Homebrew on macOS, winget on Windows) instead of assuming macOS.
+- **Bridge first, REST as an announced fallback.** The agent probes the Desktop Bridge on every run and uses it for full-depth trees, identity and token names. If the Bridge is not connected it no longer aborts: it falls back to the REST API and opens the report with a warning that the result is degraded. The Bridge is still required for a complete spec and for every write.
+- **Platform-neutral output, with optional platform hints.** The report no longer assumes iOS. Fonts are reported by the family the file uses (was hardcoded "SF Pro"), and gradients as normalised start/end points plus a plain direction. A new optional `platform` input (`ios` | `android` | `web`, inferred from the prompt when it names a framework) appends that platform's own terms next to the neutral values — so a prompt that mentions SwiftUI still gets `topLeading→bottomTrailing`, now after the neutral form instead of in place of it. Prompts that name no platform get the neutral form only.
+- **Payload handling works across figma-console versions.** The `jq` patterns normalise both the older `[{type,text}]` array and the bare-object shape returned by figma-console ≥ 1.32.
+
+### Fixed
+- README examples no longer carry real node ids or product-specific copy.
+
 ## [0.4.0] - 2026-07-18
 
 ### Added
@@ -29,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial public release. A Claude Code subagent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP, keeping main-context token usage low. Ships the `figma-deep-dive` agent, the `localization-resolver` agent, and a marketplace manifest for one-line install. Includes `default` and `full-screen-audit` modes and automatic localization-key resolution against the working repo's i18n catalogs.
 
+[0.5.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/georgeab550/Figma-Deep-Dive/releases/tag/v0.2.0

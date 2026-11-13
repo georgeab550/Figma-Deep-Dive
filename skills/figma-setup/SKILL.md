@@ -1,6 +1,6 @@
 ---
 name: figma-setup
-version: 1.0.0
+version: 1.1.0
 description: Doctor + installer + migrator for the figma-deep-dive toolchain (figma-console MCP, your Figma token, Desktop Bridge). Use right after installing the plugin, after a token change, or whenever anything Figma-related fails — 401s, missing figma-console MCP, grey Bridge tile, empty variables. Idempotent — safe to re-run any time; fixes only what's broken; every run ends in a green/red status table.
 ---
 
@@ -25,9 +25,17 @@ terminal knowledge. Rules:
 
 ## Step 1 — Preflight
 
-- `node --version` → need v18 or newer. Missing or older: offer to run
-  `brew install node`. If the user declines: red row, instruction "Install Node.js LTS
-  from https://nodejs.org, then run /figma-setup again."
+- `node --version` → need v18 or newer. Missing or older: detect the OS (`uname -s`;
+  no `uname` → Windows) and offer **one** install command for it:
+  - **macOS** → `brew install node` if `brew` exists; no Homebrew → the nodejs.org
+    instruction below (don't install Homebrew for them).
+  - **Windows** → `winget install OpenJS.NodeJS.LTS` if `winget` exists.
+  - **Linux** → don't run a package manager with `sudo` yourself; give the
+    nodejs.org instruction below.
+  If there's no command to offer, or the user declines: red row, instruction "Install
+  Node.js LTS from https://nodejs.org, then run /figma-setup again." After an install,
+  re-run `node --version`; if it still isn't found, the terminal needs reopening →
+  RESTART_NEEDED=true.
 
 ## Step 2 — Token
 
@@ -50,7 +58,25 @@ one inside the existing user-scope MCP entry (Step 3 needs this):
    > 3. Give it these scopes: **File content: Read**, **Variables: Read**,
    >    **Comments: Read and write**.
    > 4. Copy the token — it starts with `figd_` and Figma shows it **only once**.
-   > 5. Paste it here.
+   >
+   > Then give it to me one of two ways:
+   > - **Keep it out of this chat (recommended):** quit Claude Code, set the token
+   >   as `FIGMA_ACCESS_TOKEN` in your terminal, start Claude Code again from that
+   >   same terminal and run `/figma-setup`. I'll pick it up without you pasting it.
+   > - **Quickest:** paste it here. I'll only ever show its last 4 characters, but
+   >   it stays in this conversation's history.
+
+   If they choose the first way, give the **one** command for their OS (use the
+   literal placeholder — never ask them to tell you the token) and stop with the
+   token row yellow, "waiting for FIGMA_ACCESS_TOKEN — set it and run /figma-setup
+   again":
+   - macOS / Linux: `export FIGMA_ACCESS_TOKEN='figd_…'` then `claude`
+   - Windows PowerShell: `$env:FIGMA_ACCESS_TOKEN = 'figd_…'` then `claude`
+
+   The variable is needed for that one run only: Step 3 stores the token in the
+   MCP entry, so they can close that terminal afterwards. (Source 1 works the same
+   way for users who prefer a file: `"env": { "FIGMA_ACCESS_TOKEN": "figd_…" }` in
+   `~/.claude/settings.json` — they add it themselves; you never write that file.)
 
 Validate a candidate inside one Bash call — read it into a variable via a quoted
 heredoc (no shell evaluation, no echo), then use `"$FIGMA_TOKEN"`. For the shell-env
@@ -178,7 +204,7 @@ Always end with the table:
 | Figma token | 🟢 valid (…a1b2) |
 | figma-console MCP | 🟢 registered + responding |
 | Desktop Bridge | 🟢 connected |
-| Plugin | 🟢 0.4.0 (latest) |
+| Plugin | 🟢 <installed version> (latest) |
 | Restart needed | 🟢 no |
 
 - Every 🔴 row gets exactly **one** plain instruction directly under the table.
