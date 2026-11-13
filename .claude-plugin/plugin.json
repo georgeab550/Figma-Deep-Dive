@@ -1,6 +1,6 @@
 {
   "name": "figma-deep-dive",
-  "version": "0.5.0",
-  "description": "Claude Code plugin for reading and tidying Figma screens. The figma-deep-dive agent extracts distilled, structured specs from Figma node IDs while keeping main-context token usage low; /figma-screens audits and applies a screen naming convention (confirm-gated) and writes a 'Screens to build' section into a PRD. Self-installing: run /figma-setup to register the figma-console MCP, validate your Figma token, and connect the Desktop Bridge.",
+  "version": "0.6.0",
+  "description": "Claude Code plugin for reading, tidying and building Figma screens. The figma-deep-dive agent extracts distilled, structured specs from Figma node IDs while keeping main-context token usage low; /figma-screens audits and applies a screen naming convention (confirm-gated) and writes a 'Screens to build' section into a PRD; the figma-screens-from-source skill rebuilds a screen recording, code or HTML, screenshots, a written spec or an old-format Figma page as design-system-native screens, using your own library or none. Self-installing: run /figma-setup.",
   "homepage": "https://github.com/georgeab550/Figma-Deep-Dive"
 }

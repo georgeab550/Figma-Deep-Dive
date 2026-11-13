@@ -1,6 +1,6 @@
 ---
 name: figma-write
-version: 1.6.0
+version: 1.7.0
 description: >
   Writes to Figma under the plugin's screen conventions, with a hard confirm-before-mutating
   gate. Phase 1: rename frames to the screen naming convention — masters
@@ -277,8 +277,10 @@ return { pageId: page.id, nodeId: node.id, boldApplied: boldOk, chars: text.leng
   it **never repeats** the master's `[Platform][Feature][Screen]`. `[State]` only when
   the master has ≥2 states; a ` - description` is **always** present; a `[Screen]`
   override appears only for a **confirmed reuse**.
-- The platform tag lives on the **master** (exactly `[Native]` or `[Web]`), never on
-  the variant.
+- The platform tag lives on the **master**, never on the variant. Allowed values come
+  from `profile.screens.platformTags` in the project's design-system profile
+  (`.figma-deep-dive/design-system.json`; default `[Native]` or `[Web]`) — see
+  `conventions/design-system.md`.
 - **Hyphen** ` - ` (space-hyphen-space) before the description — never an en-dash `–`.
 - The full logical name is **assembled downstream**, never stamped onto the variant.
 - `[Out of scope]` frames are left alone unless the user explicitly asks to retag.

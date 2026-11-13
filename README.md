@@ -26,6 +26,7 @@ while still getting accurate design data.
 - [📱 Platform hints](#-platform-hints)
 - [🎚 Modes](#-modes)
 - [🧩 Screen toolkit](#-screen-toolkit)
+- [🏗 Building screens](#-building-screens)
 - [💬 Usage patterns](#-usage-patterns)
 - [🛠 Troubleshooting](#-troubleshooting)
 - [❓ FAQ](#-faq)
@@ -296,9 +297,11 @@ handoff. All of it runs from one command:
 
 | You type | What happens | Changes Figma? |
 |---|---|---|
+| `/figma-screens profile <url>` | Detects the design system the file uses and saves the project profile | No — read-only |
 | `/figma-screens init <url>` | Seeds a "📐 Conventions" page with the designer card (`conventions/designer-card.md`) | Yes, after you confirm |
 | `/figma-screens <url>` | Audits screen names and normalises them to the convention | Yes, after you confirm each batch |
 | `/figma-screens layers <url>` | Applies the inner-layer naming taxonomy on a component-authoring file | Yes, after you confirm each section |
+| `/figma-screens build <source> [<working file url>]` | Rebuilds a recording, code/HTML, screenshots, a `.pen` file, a written spec or an old-format Figma page as design-system-native screens — see [Building screens](#-building-screens) | Yes — on a new page only; stops after 2 pilot screens for your review |
 | `/figma-screens prd <links> --prd <path>` | Groups recycled screens into canonical screens + variants and writes a "Screens to build" block into your PRD | No — read-only |
 
 The pieces behind it:
@@ -326,12 +329,58 @@ plain-language version for designers is `conventions/designer-card.md`
 
 ### Your design system
 
-The conventions assume the UI pieces inside a screen are instances from **your
-own design-system library**. Enable that library in the working file
-(Figma → Assets → Libraries) before you build or audit screens — component
-identity, the "same piece, different name" checks and variable binding all
-resolve against what the file can see. Nothing in the plugin is tied to a
-particular library.
+Nothing in the plugin is tied to a particular design system. What yours looks
+like is recorded once per project in a **profile**
+(`.figma-deep-dive/design-system.json`), and every build and audit reads it.
+
+| Mode | Use it when | What happens |
+|---|---|---|
+| `library` | You have a published design-system library | Screens are built from its components and bound to its variables and text styles. Anything missing is built separately and listed as a proposal for the library |
+| `local` | You have no design system — you start from code, screenshots or a recording | The build authors components, variables and text styles **in the working file**. That becomes your starting design system |
+
+To set it up:
+
+1. **Using a library? Link it to the working file first:** in Figma, open the
+   file you will build in → **Assets → Libraries** → enable your library. The
+   tooling can only use what the file can see; if the library is not enabled,
+   a `library` build stops and tells you, it never falls back silently.
+2. With that file open and the Desktop Bridge running, run
+   **`/figma-screens profile <url>`**. It reads the enabled libraries, variable
+   collections, modes and text styles, proposes a profile, and saves it after
+   you confirm. No library found means it proposes `local`.
+
+The profile is plain JSON you can edit. `conventions/design-system.md` explains
+every field; `profiles/example.library.json` is a filled example.
+
+---
+
+## 🏗 Building screens
+
+One skill — `figma-screens-from-source` — rebuilds an existing source as
+**design-system-native Figma screens** — master components, states as
+instances, flow sections — on a new page. The source is never modified. It
+detects which kind of source you gave it:
+
+| Source | What you give it | Extra requirement |
+|---|---|---|
+| A screen recording | A video file of the app (`.mp4`, `.mov`, …) | `ffmpeg` |
+| Code, HTML, images or a spec | A code project, HTML files, screenshots or mockup images, a pencil `.pen` file, or a written markdown spec — from any author | Playwright (to render code and HTML); the pencil MCP for `.pen` files |
+| An existing Figma page | The URL of a page or section in an older or mixed structure | — |
+
+Every source goes through one guarded build (`build/`): the skill inventories
+the source, builds **one or two pilot screens and stops for your review**, then
+scales out, audits the result and fixes what the audit finds. It needs the
+Desktop Bridge — there is no REST fallback for building — and a
+[design-system profile](#your-design-system). Reading a separate *reference*
+file (to copy an existing look) goes through the official Figma MCP.
+
+Run it with `/figma-screens build <source>`, or ask in plain words:
+
+> Build Figma screens from `~/recordings/checkout-flow.mp4` into
+> `<working file URL>`.
+
+The full guide, with a walkthrough per source and example prompts, is
+[`docs/figma-screens.md`](docs/figma-screens.md).
 
 ---
 

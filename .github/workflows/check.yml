@@ -16,5 +16,9 @@ jobs:
         run: |
           node render/render-designer-surfaces.mjs
           git diff --exit-code -- render/out
+      - name: Profiles match the schema
+        run: |
+          pip install --quiet jsonschema
+          python3 scripts/validate-profiles.py
       - name: Example registry renders
         run: node render/render-screens-section.mjs --registry schemas/example.registry.json --dry-run > /dev/null

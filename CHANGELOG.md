@@ -5,6 +5,21 @@ All notable changes to this plugin are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-11-13
+
+### Added
+- **Design-system profile** (`.figma-deep-dive/design-system.json`) — one JSON file per project that tells the tooling which design system the working file uses. Two modes: `library` (build from your published library, which must be enabled in the working file) and `local` (no design system: the build authors components, variables and text styles in the file). Schema in `schemas/`, a neutral default and a filled example in `profiles/`, field reference in `conventions/design-system.md`.
+- **`design-system-profile` skill** and **`/figma-screens profile <url>`** — detects libraries, variable collections, modes and text styles from the open file and saves the profile after you confirm.
+- **`figma-screens-from-source` skill** and **`/figma-screens build <source>`** — rebuilds an existing source as design-system-native screens on a new page. Accepts a screen recording, code or HTML, screenshots or mockup images, `.pen` files, a written spec, or an existing Figma page in an old or mixed structure; it detects the kind of source and loads only that procedure. Pilot-gated; the source is never modified.
+- **One page badge.** Every page the build creates is named with the suffix "— Auto-built, pending design review", whatever the source; a designer removes it after reviewing.
+- **`build/`** — the shared guarded build, the audit and fix manual, the subagent briefs and the Plugin-API recipe behind that skill.
+- **`conventions/tokens.md` and `conventions/components.md`** — binding and component-property rules, driven by the profile.
+- **`docs/figma-screens.md`** — user guide for the build skill.
+- CI validates the bundled profiles against the schema.
+
+### Changed
+- Platform tags (`[Native]`, `[Web]`) are no longer fixed: `figma-write` and `conventions/naming.md` read the allowed values from the profile.
+
 ## [0.5.0] - 2026-11-13
 
 ### Added
@@ -50,6 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial public release. A Claude Code subagent that extracts distilled, structured specs from Figma node IDs via the figma-console MCP, keeping main-context token usage low. Ships the `figma-deep-dive` agent, the `localization-resolver` agent, and a marketplace manifest for one-line install. Includes `default` and `full-screen-audit` modes and automatic localization-key resolution against the working repo's i18n catalogs.
 
+[0.6.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/georgeab550/Figma-Deep-Dive/compare/v0.2.0...v0.3.0

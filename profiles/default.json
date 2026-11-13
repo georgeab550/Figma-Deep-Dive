@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "mode": "local",
+  "variables": {
+    "semanticCollections": ["Tokens"],
+    "primitiveCollections": ["Primitives"],
+    "typographyCollections": ["Typography"],
+    "modes": ["Light"],
+    "tokenPatterns": {
+      "color": "color/{text|surface|border|icon|background|brand}/<name>",
+      "spacing": "spacing/<px>",
+      "padding": "padding/<size>",
+      "radius": "radius/<size>",
+      "border": "border/<size>"
+    }
+  },
+  "typography": {
+    "textStylePattern": "<Role>/<px>/<Weight>",
+    "sizeLadder": [12, 14, 16, 20, 24, 32],
+    "weights": ["Regular", "Medium", "Bold"],
+    "substitutions": {},
+    "fonts": [{ "family": "Inter" }]
+  },
+  "components": {
+    "namePattern": "Category/kebab-name",
+    "roles": {},
+    "localPagePrefix": "→ "
+  },
+  "screens": {
+    "platformTags": ["Native", "Web"],
+    "buildWidth": 375,
+    "renderWidth": 390,
+    "statusBarTime": "9:41"
+  },
+  "copy": {
+    "locale": "en",
+    "proposedBanner": "PROPOSED – to confirm"
+  },
+  "labels": {
+    "derivedStrip": "Derived — pending design-system promotion",
+    "proposalStrip": "Proposed for the design system",
+    "proposalCard": "Proposal for the design system — tokens needed",
+    "proposalDoc": "design-system-proposal.md"
+  },
+  "pluginData": {
+    "flowNamespace": "screenflow",
+    "buildNamespace": "screenbuild",
+    "legacyFlowNamespaces": [],
+    "legacyBuildNamespaces": []
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Design-system profile",
+  "description": "Everything the screen-building skills need to know about the design system a working Figma file uses. One profile per project, stored at .figma-deep-dive/design-system.json.",
+  "type": "object",
+  "required": ["version", "mode"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "const": 1 },
+    "mode": {
+      "enum": ["library", "local"],
+      "description": "library: a published design-system library is enabled in the working file and screens are built from its components, variables and text styles. local: no library; components, variables and text styles are authored in the working file and become the starting design system."
+    },
+    "library": {
+      "type": "object",
+      "description": "Required when mode is library.",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "description": "Display name used in reports, e.g. 'Acme DS'." },
+        "fileKeys": { "type": "array", "items": { "type": "string" }, "description": "File key(s) of the published library file(s). A component belongs to the library when its main component is remote and comes from one of these files." },
+        "componentKeys": { "type": "array", "items": { "type": "string" }, "description": "Optional: a few known component keys, used to resolve the library file key when fileKeys is empty." },
+        "foreignNameHints": { "type": "array", "items": { "type": "string" }, "description": "Optional: component-name patterns (regex) that signal a different, unwanted library." }
+      }
+    },
+    "variables": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "semanticCollections": { "type": "array", "items": { "type": "string" }, "description": "Collections authored nodes must bind to." },
+        "primitiveCollections": { "type": "array", "items": { "type": "string" }, "description": "Raw-value collections authored nodes must NOT bind to directly." },
+        "typographyCollections": { "type": "array", "items": { "type": "string" } },
+        "modes": { "type": "array", "items": { "type": "string" }, "description": "Variable modes the file uses (themes, brands)." },
+        "tokenPatterns": {
+          "type": "object",
+          "description": "Name patterns per token family, e.g. color: 'color/{text|surface|border}/<name>'.",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "textStylePattern": { "type": "string", "description": "How text styles are named, e.g. '<Family>/<px>/<Weight>'." },
+        "sizeLadder": { "type": "array", "items": { "type": "number" }, "description": "Sizes the system offers; nearest-match snaps to these." },
+        "weights": { "type": "array", "items": { "type": "string" } },
+        "substitutions": { "type": "object", "additionalProperties": { "type": "string" }, "description": "Nearest-match rewrites for things the system lacks, e.g. {\"Semibold\": \"Bold\"}." },
+        "fonts": {
+          "type": "array",
+          "description": "Font family by size range.",
+          "items": {
+            "type": "object",
+            "required": ["family"],
+            "additionalProperties": false,
+            "properties": { "family": { "type": "string" }, "minSize": { "type": "number" }, "maxSize": { "type": "number" } }
+          }
+        }
+      }
+    },
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "namePattern": { "type": "string", "description": "How the library names components, e.g. 'Category/kebab-name'." },
+        "roles": {
+          "type": "object",
+          "description": "Which library component fills a common role: primaryButton, secondaryButton, navigationBar, input, listItem, card, bottomActionBar, statusBar. Values are component names or keys.",
+          "additionalProperties": { "type": "string" }
+        },
+        "localPagePrefix": { "type": "string", "description": "mode local: prefix of the pages that hold authored components, e.g. '→ '." }
+      }
+    },
+    "screens": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "platformTags": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "Allowed [Platform] values, without brackets." },
+        "buildWidth": { "type": "number" },
+        "renderWidth": { "type": "number", "description": "Width source frames/renders are captured at." },
+        "statusBarTime": { "type": "string" },
+        "screenBackground": { "type": "string", "description": "Variable or style name for the default screen background." }
+      }
+    },
+    "copy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "locale": { "type": "string", "description": "BCP 47 tag of the product copy, e.g. 'en', 'de-DE'." },
+        "proposedBanner": { "type": "string", "description": "Text of the banner marking copy the build had to invent." }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "description": "Exact names of the scaffolding the build creates and the audit looks for.",
+      "additionalProperties": false,
+      "properties": {
+        "derivedStrip": { "type": "string" },
+        "proposalStrip": { "type": "string" },
+        "proposalCard": { "type": "string" },
+        "proposalDoc": { "type": "string" }
+      }
+    },
+    "pluginData": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "flowNamespace": { "type": "string" },
+        "buildNamespace": { "type": "string" },
+        "legacyFlowNamespaces": { "type": "array", "items": { "type": "string" }, "description": "Older namespaces to read (never write) so files built before a rename keep working." },
+        "legacyBuildNamespaces": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "mode": { "const": "library" } } },
+      "then": { "required": ["library"], "properties": { "library": { "required": ["name"] } } }
+    }
+  ]
+}
