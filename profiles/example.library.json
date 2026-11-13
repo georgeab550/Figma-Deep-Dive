@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "mode": "library",
+  "library": {
+    "name": "Acme DS",
+    "fileKeys": ["EXAMPLElibraryKey00000000"],
+    "componentKeys": [],
+    "foreignNameHints": []
+  },
+  "variables": {
+    "semanticCollections": ["Semantic"],
+    "primitiveCollections": ["Primitives"],
+    "typographyCollections": ["Typography"],
+    "modes": ["Light", "Dark"],
+    "tokenPatterns": {
+      "color": "color/{text|surface|border|icon}/<name>",
+      "spacing": "space/<step>",
+      "radius": "radius/<size>"
+    }
+  },
+  "typography": {
+    "textStylePattern": "Acme/<px>/<Weight>",
+    "sizeLadder": [13, 15, 17, 20, 24],
+    "weights": ["Regular", "Medium", "Bold"],
+    "substitutions": { "Semibold": "Bold" },
+    "fonts": [
+      { "family": "Acme Sans Text", "maxSize": 17 },
+      { "family": "Acme Sans Display", "minSize": 20 }
+    ]
+  },
+  "components": {
+    "namePattern": "Category/kebab-name",
+    "roles": {
+      "primaryButton": "Button/primary",
+      "navigationBar": "Navigation/top-bar",
+      "input": "Input/text-field",
+      "listItem": "List item/row",
+      "card": "Card/info",
+      "bottomActionBar": "Layout/bottom-action-bar"
+    }
+  },
+  "screens": { "platformTags": ["Native", "Web"], "buildWidth": 375, "renderWidth": 390, "statusBarTime": "9:41", "screenBackground": "color/surface/primary" },
+  "copy": { "locale": "en", "proposedBanner": "PROPOSED – to confirm" },
+  "labels": {
+    "derivedStrip": "Derived — pending Acme DS promotion",
+    "proposalStrip": "Proposed for Acme DS",
+    "proposalCard": "Proposal for Acme DS — tokens needed",
+    "proposalDoc": "design-system-proposal.md"
+  },
+  "pluginData": { "flowNamespace": "screenflow", "buildNamespace": "screenbuild", "legacyFlowNamespaces": [], "legacyBuildNamespaces": [] }
+}

@@ -6,7 +6,9 @@ and tooling can catalog + de-duplicate screens automatically.
 > **Audience & scope.** This governs **screen naming in feature/project files** —
 > what a feature designer names. The UI *pieces* inside a screen are instances from your
 > **design-system library**; their component names, layer names, and design tokens
-> are inherited from that library (see `layers.md`). The plain-language
+> are inherited from that library (see `components.md`, `tokens.md` and `layers.md`).
+> Which library that is — or that there is none — is recorded in the project's
+> design-system profile (`design-system.md`). The plain-language
 > version designers actually read is `conventions/designer-card.md`.
 
 ## The two levels: master and variant
@@ -21,7 +23,7 @@ you always place a variant of it.
 
 | Part         | Required | Values                                             | Example              |
 |--------------|----------|----------------------------------------------------|----------------------|
-| `[Platform]` | yes      | `[Native]` or `[Web]`                              | `[Native]`           |
+| `[Platform]` | yes      | one of `profile.screens.platformTags` (default `[Native]`, `[Web]`) | `[Native]` |
 | `[Feature]`  | yes      | the product feature / area (stable)                | `[Checkout]`, `[Orders]`|
 | `[Screen]`   | yes      | what the screen **is** — canonical, no state/entry | `[Address]` |
 
@@ -111,7 +113,9 @@ context-only frames owned by another team) is prefixed `[Out of scope]`.
 Tooling catalogs only frames WITHOUT that tag (case-insensitive).
 
 ## Platform tag — [Native] vs [Web]
-Reflects HOW it's built: web / WebView screens → `[Web]`; native screens → `[Native]`.
+The allowed tags come from the design-system profile (`profile.screens.platformTags`,
+see `design-system.md`); `[Native]` and `[Web]` are the defaults. The tag reflects HOW
+it's built: web / WebView screens → `[Web]`; native screens → `[Native]`.
 A flow may mix both — tag each screen by its own implementation. A platform break
 is always a **different screen** (never collapse `[Web]` and `[Native]` as one).
 (The platform tag lives on the master; a variant inherits it via identity.)

@@ -5,8 +5,8 @@ two designer-facing outputs under `out/`. Outputs are **generated** — do not e
 them by hand; edit `conventions/designer-card.md` instead.
 
 The card is authored in a designer register (plain language, worked examples). The
-technical convention docs (`naming.md`, `layers.md`) are the AI / engineering +
-component-authoring reference and are **not** rendered here.
+technical convention docs (`naming.md`, `layers.md`, `components.md`, `tokens.md`,
+`design-system.md`) are the AI / engineering + component-authoring reference and are **not** rendered here.
 
 ## Run
 

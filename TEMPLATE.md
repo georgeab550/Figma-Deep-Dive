@@ -104,4 +104,5 @@ Whenever `conventions/designer-card.md` changes:
 | `conventions/designer-card.md` | Authored designer card — the source; pasted onto the Conventions page |
 | `render/out/designer-doc.html` | Standalone HTML version of the card, for sharing (not used by the scaffold) |
 | `conventions/naming.md` | Screen-naming spec (feature files) |
-| `conventions/layers.md` | Component-authoring convention (layer names) |
+| `conventions/layers.md`, `conventions/components.md`, `conventions/tokens.md` | Component-authoring conventions (layers, properties, tokens) |
+| `conventions/design-system.md` | The design-system profile every build reads |
