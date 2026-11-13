@@ -1,0 +1,131 @@
+<!-- generated from conventions/designer-card.md — edit the source, not this file -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to set up screens</title>
+<meta name="description" content="Designer-facing card: how to name and structure screens so teammates and AI tooling can read them.">
+<style>
+  :root {
+    --text: #1a1a1a;
+    --muted: #555;
+    --border: #d0d0d0;
+    --bg-code: #f4f4f4;
+    --bg-page: #fff;
+    --accent: #2563eb;
+    --warn: #b45309;
+    font-size: 16px;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text);
+    background: var(--bg-page);
+    margin: 0;
+    padding: 2rem 1rem;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header { border-bottom: 2px solid var(--border); margin-bottom: 2rem; padding-bottom: 1rem; }
+  header h1 { margin: 0 0 .25rem; font-size: 1.5rem; }
+  header p { margin: 0; color: var(--muted); font-size: .875rem; }
+  h1, h2, h3, h4 { line-height: 1.25; }
+  h2 { font-size: 1.125rem; margin-top: 2rem; border-bottom: 1px solid var(--border); padding-bottom: .25rem; }
+  h3 { font-size: 1rem; margin-top: 1.5rem; }
+  code { background: var(--bg-code); padding: .1em .35em; border-radius: 3px; font-size: .875em; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+  pre { background: var(--bg-code); border: 1px solid var(--border); border-radius: 4px; padding: 1rem; overflow-x: auto; }
+  pre code { background: none; padding: 0; font-size: .85em; }
+  table { border-collapse: collapse; width: 100%; font-size: .9em; overflow-x: auto; display: block; }
+  th, td { border: 1px solid var(--border); padding: .45rem .75rem; text-align: left; vertical-align: top; }
+  th { background: var(--bg-code); font-weight: 600; }
+  ul, ol { padding-left: 1.5rem; }
+  li { margin: .2rem 0; }
+  li input[type=checkbox] { margin-right: .4rem; }
+  blockquote { border-left: 3px solid var(--border); margin: .75rem 0; padding: .25rem .75rem; color: var(--muted); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .generated-note { font-size: .8rem; color: var(--muted); margin-top: 3rem; padding-top: 1rem; border-top: 1px dashed var(--border); }
+  strong em, em strong { font-style: italic; font-weight: 700; }
+  @media (max-width: 600px) {
+    body { padding: 1rem .75rem; }
+    h2 { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>How to set up screens</h1>
+  <p>The designer-facing card &mdash; screens live in the project, UI pieces come from your design-system library</p>
+</header>
+<p>This file gets read to build the app — by your teammates and by AI tooling. The screens live here; the UI pieces come from your <strong>design-system library</strong>.</p>
+<h2>Name prefixes — every screen name starts with <code>[Platform][Feature]</code></h2>
+<ul>
+<li><code>[Native]</code> — a native in-app screen · <code>[Web]</code> — a web / WebView screen</li>
+<li><code>[Out of scope]</code> — anything not being built yet (notes, references, WIP)</li>
+</ul>
+<h2>1 · Name the master screen once</h2>
+<p>A screen exists <strong>once</strong> as a master component. Name the master:</p>
+<p><code>[Platform][Feature][Screen]</code>  — brackets back-to-back, no spaces between them.</p>
+<ul>
+<li>✅ <code>[Native][Checkout][Address]</code></li>
+<li>✅ <code>[Native][Orders][Order list]</code></li>
+<li>❌ <code>Address (from cart)</code> — don't say where it came from</li>
+<li>❌ <code>Frame 412</code> · <code>Address v2</code> — no default names, no versions</li>
+</ul>
+<p>The master has <strong>no state and no description</strong> — it's the stable template. This is the ONE full name you type; the UI pieces keep their library names.</p>
+<h2>2 · Build screens from the library — don't rebuild</h2>
+<p>Drop in library instances (<code>Button/…</code>, <code>Card/…</code>, <code>List item/…</code>). Never redraw a piece that already exists in the library. Need something it doesn't have? Build it, then flag it for the library — it belongs there, not in this file.</p>
+<h2>3 · The screens in your flow are variants of a master</h2>
+<p>You never drop the master straight into a flow — you drop a <strong>variant</strong> (an instance) of it. If the same screen shows up in two flows, it's the same master with two variants. Never copy the frame: copies drift apart; variants stay in sync — and the tooling sees they're the same screen.</p>
+<h2>4 · One variant differs from another? Boolean property + a <code>[State]</code> tag</h2>
+<ul>
+<li>A part shows or hides between variants → a <strong>boolean</strong> on the screen (e.g. show</li>
+</ul>
+<p>  the "Active" badge, open a bottom sheet).</p>
+<ul>
+<li>Only the copy changes → a <strong>text</strong> property.</li>
+<li>Tag the difference in the variant name with a <code>[State]</code> bracket</li>
+</ul>
+<p>  (<code>[Edit address]</code>, <code>[Delivered]</code>, <code>[empty]</code>).</p>
+<p>Screens are plain components — <strong>don't</strong> turn them into Figma variant sets (<code>Prop=Value</code>). That pattern belongs to library pieces, not your screens.</p>
+<h2>5 · Naming a variant: type only the delta — the master keeps the rest</h2>
+<p>On a variant you type <strong>only the delta</strong> — never repeat the master's <code>[Platform][Feature][Screen]</code>:</p>
+<p><code>[State] - description</code>   — a <strong>hyphen</strong> between the tag and the description.</p>
+<ul>
+<li>✅ you type: <code>[Edit address] - Change address from order summary</code></li>
+<li>✅ single-state screen (no state tag, description still required): <code>- Order list item examples</code></li>
+<li>❌ don't repeat the master: <code>[Native][Checkout][Address][Edit address] - …</code></li>
+</ul>
+<p>The master holds <code>[Platform][Feature][Screen]</code>; the tool joins the two to build the full name <strong>for the PRD</strong> — it never stamps the prefix onto your frame. Typed the prefix out of habit? The tool <strong>strips</strong> it back to the delta. Forgot the description? It flags it — and can <strong>suggest</strong> one from where the screen sits in the flow.</p>
+<p><strong>Reusing a master as a different screen</strong> is fine: lead the delta with the different <code>[Screen]</code> bracket (e.g. the Order-list master shown as <code>[Order details][Delivered] - Order item detail</code>). The tool keeps your label and just asks you to confirm it's intentional.</p>
+<h2>6 · Use the library's tokens — never raw hex or px</h2>
+<ul>
+<li>color → a color variable</li>
+<li>spacing, padding, radius → the matching number variable</li>
+<li>type → a text style</li>
+</ul>
+<p>Bind to the variable or style — never type a hex or a pixel value.</p>
+<h2>7 · Housekeeping</h2>
+<ul>
+<li><code>[Out of scope]</code> on anything not being built (notes, WIP).</li>
+<li>Copy is final, in the product's language, spelled as it will ship.</li>
+</ul>
+<h2>How this works — and how to run it</h2>
+<p>This card is part of a small toolkit that turns your Figma into a build-ready spec. <strong>You</strong> run a command at each moment — nothing runs on its own.</p>
+<ul>
+<li><strong>① Start a file</strong> → <code>/figma-screens init</code> — sets the file up and drops in this card.</li>
+<li><strong>② While designing</strong> (if screen names drift) → <code>/figma-screens &lt;url&gt;</code> — checks</li>
+</ul>
+<p>  your <strong>screen names</strong> against these rules: <strong>strips any repeated master prefix</strong>   back to the delta, checks the delta form, and flags drift (you approve each change).   It leaves layers alone — those come pre-named from the library pieces you drop in.</p>
+<ul>
+<li><strong>③ Hand off</strong> (design done) → <code>/figma-screens prd &lt;links&gt;</code> — reads your finished</li>
+</ul>
+<p>  screens, merges variants of the same master, and writes the <strong>"Screens to build"</strong>   section into the PRD. Read-only — it never changes your Figma.</p>
+<p>Behind the scenes: a <strong>reader</strong> pulls your Figma, a <strong>writer</strong> makes the ① and ② changes after you confirm, and a <strong>canonicalizer</strong> groups variants for ③. You only ever type the commands above.</p>
+<hr>
+<p>Component & layer naming live in the library — you inherit them just by using its pieces.</p>
+<p class="generated-note">Generated from <code>conventions/designer-card.md</code> &mdash; edit the source, not this file. Run <code>node render/render-designer-surfaces.mjs</code> to regenerate.</p>
+</div>
+</body>
+</html>

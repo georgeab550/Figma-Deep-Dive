@@ -1,0 +1,27 @@
+{
+  "version": "2.1.0",
+  "note": "Card-only scaffold. Components come from the user's design-system library (linked into the working file), NOT from this scaffold. init seeds only the conventions card so the file is legible to the pipeline.",
+  "pages": [
+    {
+      "name": "📐 Conventions",
+      "seed": "conventions-card",
+      "note": "Create/reuse this page and drop the conventions card into it as a single locked text node rendered to NATIVE Figma text styling (see conventionsCard.styling). Read conventions/designer-card.md directly — the scaffold never seeds a stale rendered copy."
+    }
+  ],
+  "conventionsCard": {
+    "source": "conventions/designer-card.md",
+    "renderedArtifact": "render/out/designer-doc.html",
+    "linkToDoc": true,
+    "lockOnPaste": true,
+    "styling": {
+      "note": "Figma text nodes do NOT render Markdown. The scaffold parses the card and applies native Figma text styling per range (headings bold + stepped size, inline **bold**, clean bullets) via figma_execute — see the figma-write 'scaffold (init)' workflow for the exact, validated recipe. Markers (#, **, backticks, leading - / *) are stripped, never pasted literally.",
+      "baseFontSizePx": 13,
+      "lineHeightPercent": 150,
+      "widthPx": 560,
+      "headingSizesPx": { "h1": 24, "h2": 16, "h3": 14 },
+      "bulletChar": "•",
+      "bold": "headings + inline **…** ranges; uses the created node's own font family in Bold, falling back to size-only if the Bold style isn't available",
+      "fallback": "if figma_execute / the bridge is unavailable, create a single locked text node with the parsed PLAIN text (markers still stripped) and warn that styling was skipped — never paste raw Markdown"
+    }
+  }
+}
